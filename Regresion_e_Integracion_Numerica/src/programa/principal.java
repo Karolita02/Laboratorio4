@@ -1,10 +1,10 @@
 package programa;
 
+import interfaz.Ventana;
 import metodos_numericos.integracion_numerica.Simpson;
 import metodos_numericos.integracion_numerica.Simpson1_3;
 import metodos_numericos.integracion_numerica.Simpson3_8;
 import metodos_numericos.integracion_numerica.datos.Funcion;
-import metodos_numericos.interfaz.Ventana;
 
 public class Principal 
 {

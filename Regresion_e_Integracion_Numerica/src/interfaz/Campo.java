@@ -1,4 +1,4 @@
-package metodos_numericos.interfaz;
+package interfaz;
 
 import java.awt.Color;
 import java.awt.Font;

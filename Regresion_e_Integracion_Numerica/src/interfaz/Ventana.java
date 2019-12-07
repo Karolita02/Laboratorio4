@@ -1,4 +1,4 @@
-package metodos_numericos.interfaz;
+package interfaz;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -400,7 +400,7 @@ public class Ventana extends JFrame
         panelBienvenida = new JPanel();
         panelBienvenida.setOpaque(false);
         panelBienvenida.setLayout(new GridLayout(10,1));
-        panelBienvenida.setBounds(50, 150, 
+        panelBienvenida.setBounds(50, 200, 
         700, 500);
 
         JLabel textoMetodos = new JLabel("Usando los Metodos de Simpson");
