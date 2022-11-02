@@ -6,10 +6,6 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/ricar/Documents/Programacion/Universidad/Prog-Metodos-Numericos/Laboratorio3/Laboratorio3.jar">
-		<attributes>
-			<attribute name="module" value="true"/>
-		</attributes>
-	</classpathentry>
+	<classpathentry kind="lib" path="lib/Laboratorio3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
