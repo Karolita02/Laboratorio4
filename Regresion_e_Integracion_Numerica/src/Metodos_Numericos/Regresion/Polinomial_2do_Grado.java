@@ -1,12 +1,9 @@
-package Metodos_Numericos.Regresion;
+package metodos_numericos.regresion;
 
-public class Polinomial_2do_Grado 
-{
+/**
+ * Polinomial_2do_Grado
+ */
+public class Polinomial_2do_Grado {
 
-
-    public static void ingresarDatos()
-    {
-
-    }
     
 }

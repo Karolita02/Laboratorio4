@@ -1,7 +1,9 @@
-package Metodos_Numericos.Integracion_Numerica;
+package metodos_numericos.integracion_numerica;
 
-public class Integracion_Numerica 
-{
-    
+/**
+ * Integracion_Numerica
+ */
+public class Integracion_Numerica {
+
     
 }
