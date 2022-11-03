@@ -1,4 +1,4 @@
-package metodos_Numericos.Regresion;
+package metodos_numericos.regresion;
 
 public class Tabla 
 {

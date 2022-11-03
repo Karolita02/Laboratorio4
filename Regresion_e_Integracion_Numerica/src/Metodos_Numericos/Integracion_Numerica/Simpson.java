@@ -1,6 +1,6 @@
 package metodos_numericos.integracion_numerica;
 
-public class Integracion_Numerica {
+public class Simpson {
 
     
 }
