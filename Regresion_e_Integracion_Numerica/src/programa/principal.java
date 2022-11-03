@@ -1,7 +1,9 @@
 package programa;
 
-public class principal {
-    public static void main(String[] args) {
+public class Principal 
+{
+    public static void main(String[] args) 
+    {
         
     }
     

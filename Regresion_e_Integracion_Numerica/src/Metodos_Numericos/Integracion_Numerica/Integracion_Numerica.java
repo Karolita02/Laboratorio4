@@ -1,4 +1,4 @@
-package metodos_numericos.integracion_numerica;
+package metodos_Numericos.integracion_Numerica;
 
 public class Integracion_Numerica {
 
