@@ -5,36 +5,50 @@ import metodos_numericos.integracion_numerica.datos.Funcion;
 public abstract class Integracion_Numerica {
 
     private Funcion funcion;
-    private double ultimo, anterior;
+    private double a, b, h;
+    private int n;
 
     public Integracion_Numerica(Funcion funcion) {
         this.funcion = funcion;
-        ultimo = funcion.evaluar(0);
     }
 
-    public double errorRelativo(){
-        return (ultimo-anterior)/ultimo*100;
-    }
-
-    public abstract void calcular();
+    public abstract double calcular();
 
     public Funcion getFuncion() {
         return funcion;
     }
 
-    public double getUltimo() {
-        return ultimo;
+    public double getA() {
+        return a;
     }
 
-    public void setUltimo(double ultimo) {
-        this.ultimo = ultimo;
+    public void setA(double a) {
+        this.a = a;
     }
 
-    public double getAnterior() {
-        return anterior;
+    public double getB() {
+        return b;
     }
 
-    public void setAnterior(double anterior) {
-        this.anterior = anterior;
+    public void setB(double b) {
+        this.b = b;
     }
+
+    public double getH() {
+        return h;
+    }
+
+    public void setH(double h) {
+        this.h = h;
+    }
+
+    public int getN() {
+        return n;
+    }
+
+    public void setN(int n) {
+        this.n = n;
+        setH((getB()-getA())/n);
+    }
+    
 }

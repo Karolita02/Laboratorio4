@@ -6,14 +6,14 @@ public class Simpson extends Integracion_Numerica{
 
     public Simpson(Funcion funcion) {
         super(funcion);
-        //TODO Auto-generated constructor stub
     }
 
     @Override
-    public void calcular() {
-        // TODO Auto-generated method stub
-        
-    }
-
-    
+    public double calcular() {
+        return (getB() - getA()) / 6.0 * (
+            getFuncion().evaluar(getA()) + 
+            4 * getFuncion().evaluar((getA() + getB()) / 2.0) + 
+            getFuncion().evaluar(getB())
+        );
+    }    
 }
