@@ -5,11 +5,14 @@ import metodos_numericos.integracion_numerica.datos.Funcion;
 public abstract class Integracion_Numerica {
 
     private Funcion funcion;
+    private double[] evaluaciones;
     private double a, b, h;
     private int n;
 
-    public Integracion_Numerica(Funcion funcion) {
+    public Integracion_Numerica(Funcion funcion, double a, double b) {
         this.funcion = funcion;
+        this.a = a;
+        this.b = b;
     }
 
     public abstract double calcular();
@@ -22,23 +25,15 @@ public abstract class Integracion_Numerica {
         return a;
     }
 
-    public void setA(double a) {
-        this.a = a;
-    }
-
     public double getB() {
         return b;
-    }
-
-    public void setB(double b) {
-        this.b = b;
     }
 
     public double getH() {
         return h;
     }
 
-    public void setH(double h) {
+    private void setH(double h) {
         this.h = h;
     }
 
@@ -49,6 +44,16 @@ public abstract class Integracion_Numerica {
     public void setN(int n) {
         this.n = n;
         setH((getB()-getA())/n);
+        setEvaluaciones(new double[n+1]);
     }
-    
+
+    public double[] getEvaluaciones() {
+        return evaluaciones;
+    }
+
+    private void setEvaluaciones(double[] evaluaciones) {
+        this.evaluaciones = evaluaciones;
+        for (double i = 0, x = getA(); i < evaluaciones.length; i++, x += getH()) 
+            this.evaluaciones[(int)i] = getFuncion().evaluar(x);
+    } 
 }

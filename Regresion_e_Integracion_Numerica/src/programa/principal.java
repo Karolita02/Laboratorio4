@@ -10,22 +10,21 @@ public class Principal
     public static void main(String[] args) 
     {
         Funcion funcion = (x) -> Math.sqrt(5 + Math.pow(x,3));
-        var s = new Simpson(funcion);
-        s.setA(0);
-        s.setB(1);
-        System.out.println(s.calcular()); // resp = 2.290157143
+        String textoFuncion = "(5 + x^3)^(1/2)";
+        int a = 0, b = 1;
 
-        var s1_3 = new Simpson1_3(funcion);
-        s1_3.setA(0);
-        s1_3.setB(1);
-        s1_3.setN(4);
-        System.out.println(s1_3.calcular()); // resp = 2.290454560
+        var s = new Simpson(funcion, a, b);
+        System.out.println(s.calcular()); // resp = 2.2901573
 
-        var s3_8 = new Simpson3_8(funcion);
-        s3_8.setA(0);
-        s3_8.setB(1);
-        s3_8.setN(4);
-        System.out.println(s3_8.calcular()); // resp = 2.142446053
+        int n = 6;
+        
+        var s1_3 = new Simpson1_3(funcion,a,b);
+        s1_3.setN(n) ;
+        System.out.println(s1_3.calcular()); // resp = 2.2904546
+
+        var s3_8 = new Simpson3_8(funcion,a,b);
+        s3_8.setN(n);
+        System.out.println(s3_8.calcular()); // resp = 2.2904658
     }
     
 }

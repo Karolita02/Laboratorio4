@@ -4,25 +4,25 @@ import metodos_numericos.integracion_numerica.datos.Funcion;
 
 public class Simpson3_8 extends Integracion_Numerica{
 
-    public Simpson3_8(Funcion funcion) {
-        super(funcion);
+    public Simpson3_8(Funcion funcion, double a, double b) {
+        super(funcion, a, b);
     }
 
     @Override
     public double calcular() {
         return 3*getH()/8 * (
-            getFuncion().evaluar(getA()) + 
+            getEvaluaciones()[0] + 
             2 * sumatoria(true) +
             3 * sumatoria(false) + 
-            getFuncion().evaluar(getB())
+            getEvaluaciones()[getN()]
         );
     }
 
     public double sumatoria(boolean deMultiplo3){
         double suma = 0;
-        for (double x = deMultiplo3 ? 3*getH() : getA() + getH(); x < getB(); x += deMultiplo3 ? 3*getH() : getH())
-            suma += deMultiplo3 ? getFuncion().evaluar(x) : // si es multiplo de 3 procedemos normal
-                x % (3*getH()) != 0 ? getFuncion().evaluar(x) : 0; // sino solo los q no son multiplos de 3
+        for (int i = deMultiplo3 ? 3 : 1; i < getN() ; i += deMultiplo3 ? 3 : 1)
+            suma += deMultiplo3 || i % 3 != 0 ? getEvaluaciones()[i] : 0; 
+            // si es multiplo de 3  o no son multiplos de 3, procedemos normal  // sino 0 
         return suma;
     }
 }

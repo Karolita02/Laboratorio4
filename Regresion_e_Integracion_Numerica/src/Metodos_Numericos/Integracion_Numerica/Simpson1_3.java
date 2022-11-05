@@ -6,25 +6,25 @@ public class Simpson1_3 extends Integracion_Numerica{
 
     
 
-    public Simpson1_3(Funcion funcion) {
-        super(funcion);
+    public Simpson1_3(Funcion funcion, double a, double b) {
+        super(funcion, a, b);
     }
 
     @Override
     public double calcular() {
         return getH()/3 * (
-            getFuncion().evaluar(getA()) + 
+            getEvaluaciones()[0] + 
             2 * sumatoria(true) + 
             4 * sumatoria(false) +
-            getFuncion().evaluar(getB())
+            getEvaluaciones()[getN()]
         );
         
     }
 
     public double sumatoria(boolean dePares){
         double suma = 0;
-        for (double x = dePares ? 2*getH() : getA() + getH(); x < getB(); x += 2*getH())
-            suma += getFuncion().evaluar(x);
+        for (int i = dePares ? 2 : 1; i < getN(); i += 2)
+            suma += getEvaluaciones()[i];
         return suma;
     }
 }
