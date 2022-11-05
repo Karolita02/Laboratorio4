@@ -23,7 +23,7 @@ public class Simpson1_3 extends Integracion_Numerica{
 
     public double sumatoria(boolean dePares){
         double suma = 0;
-        for (int x = dePares ? 2 : 1; x < getN(); x += 2)
+        for (double x = dePares ? 2*getH() : getA() + getH(); x < getB(); x += 2*getH())
             suma += getFuncion().evaluar(x);
         return suma;
     }

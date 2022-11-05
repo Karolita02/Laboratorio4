@@ -20,9 +20,9 @@ public class Simpson3_8 extends Integracion_Numerica{
 
     public double sumatoria(boolean deMultiplo3){
         double suma = 0;
-        for (int x = deMultiplo3 ? 3 : 1; x < getN(); x += deMultiplo3 ? 3 : 1)
+        for (double x = deMultiplo3 ? 3*getH() : getA() + getH(); x < getB(); x += deMultiplo3 ? 3*getH() : getH())
             suma += deMultiplo3 ? getFuncion().evaluar(x) : // si es multiplo de 3 procedemos normal
-                x % 3 != 0 ? getFuncion().evaluar(x) : 0; // sino solo los q no son multiplos de 3
+                x % (3*getH()) != 0 ? getFuncion().evaluar(x) : 0; // sino solo los q no son multiplos de 3
         return suma;
     }
 }
