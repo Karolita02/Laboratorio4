@@ -38,9 +38,8 @@ public class Ventana extends JFrame
     private JPanel panelBienvenida;
     private JButton botonCalcular;
     private PanelScroll scrollGaussJordan, scrollJordanIndep, scrollMatrizInversa, scrollInversaIndep;
-    private JPanel panelIncognitas;
-    private Boton botonConfirmar;
-    private Campo campoIncognitas;
+    private JPanel panelIntroducirDatos;
+    private Campo campoPuntoA, campoPuntoB, campoN1_3, campoN3_8;
     private PanelScroll scrollVariables, scrollIndependientes;
     private PanelScroll scrollResultadosJordan, scrollResultadosInversa;
     private ArrayList<JLabel> listaTextos = new ArrayList<>();
@@ -77,7 +76,7 @@ public class Ventana extends JFrame
         inicializarPanelCentral();
         panelCentral.add(panelPrincipal); // para que sea el primero en aparecer
         establecerFuncionBotonesMenu();
-        establacerFuncionBotonConfirmar();
+        // establacerFuncionBotonConfirmar();
         establecerFuncionBotonCalcular();
         establecerFuncionesParaLimpiarTablas();
         panelAccionesVentana.addMouseMotionListener(new Movilidad());
@@ -89,7 +88,7 @@ public class Ventana extends JFrame
             texto.addMouseListener(new limpiarSeleccion());
         panelResultados.addMouseListener(new limpiarSeleccion());
         panelDatos.addMouseListener(new limpiarSeleccion());
-        panelIncognitas.addMouseListener(new limpiarSeleccion());
+        panelIntroducirDatos.addMouseListener(new limpiarSeleccion());
     }
     private void establecerFuncionBotonCalcular() {
         botonCalcular.addActionListener((e) -> {
@@ -164,35 +163,36 @@ public class Ventana extends JFrame
             for (int j = 0; j < matriz[0].length; j++) 
                 matriz[i][j] = Double.parseDouble(tablaVariables.get(i).get(j).toString());
     }
-    private void establacerFuncionBotonConfirmar() {
-        botonConfirmar.addActionListener((e) -> {
-            try {
-                int tamano = Integer.parseInt(campoIncognitas.getText());
+    // private void establacerFuncionBotonConfirmar() {
+    //     botonConfirmar.addActionListener((e) -> {
+    //         try {
+    //             int tamano = Integer.parseInt(campoPuntoA.getText());
 
-                scrollVariables.set_dimensiones(tamano, tamano);
-                scrollIndependientes.set_dimensiones(tamano, 1);
-                scrollIndependientes.cambiar_identificadores(new String[]{" "});
+    //             scrollVariables.set_dimensiones(tamano, tamano);
+    //             scrollIndependientes.set_dimensiones(tamano, 1);
+    //             scrollIndependientes.cambiar_identificadores(new String[]{" "});
                 
-                scrollGaussJordan.set_dimensiones(tamano, tamano);
-                scrollJordanIndep.set_dimensiones(tamano, 1);
-                scrollJordanIndep.cambiar_identificadores(new String[]{" "});
+    //             scrollGaussJordan.set_dimensiones(tamano, tamano);
+    //             scrollJordanIndep.set_dimensiones(tamano, 1);
+    //             scrollJordanIndep.cambiar_identificadores(new String[]{" "});
                 
-                scrollMatrizInversa.set_dimensiones(tamano, tamano);
-                scrollInversaIndep.set_dimensiones(tamano, 1);
-                scrollInversaIndep.cambiar_identificadores(new String[]{"Matriz B"});
+    //             scrollMatrizInversa.set_dimensiones(tamano, tamano);
+    //             scrollInversaIndep.set_dimensiones(tamano, 1);
+    //             scrollInversaIndep.cambiar_identificadores(new String[]{"Matriz B"});
                 
-                scrollResultadosJordan.set_dimensiones(1, tamano);
-                scrollResultadosInversa.set_dimensiones(1, tamano);
+    //             scrollResultadosJordan.set_dimensiones(1, tamano);
+    //             scrollResultadosInversa.set_dimensiones(1, tamano);
 
 
-                coeficientesVariables = new double[tamano][tamano];
-                coeficientesIndependientes = new double[tamano][1];
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Error, Numero Ingresado Invalido", 
-                "ERROR NUMERO INVALIDO", JOptionPane.ERROR_MESSAGE, null);
-            }
-        });
-    }
+    //             coeficientesVariables = new double[tamano][tamano];
+    //             coeficientesIndependientes = new double[tamano][1];
+    //         } catch (Exception ex) {
+    //             JOptionPane.showMessageDialog(this, "Error, Numero Ingresado Invalido", 
+    //             "ERROR NUMERO INVALIDO", JOptionPane.ERROR_MESSAGE, null);
+    //         }
+    //     });
+    // }
+
     // private boolean opcionSiNo(String mensaje, String titulo){
     //     while (true) {
     //         int valor = JOptionPane.showOptionDialog(null, mensaje, titulo, 0, 1, null, "Si, No".split(", "), null);
@@ -342,44 +342,63 @@ public class Ventana extends JFrame
         panelDatos.setOpaque(false);
         panelDatos.setLayout(null);
         
-        panelIncognitas = new JPanel();
-        panelIncognitas.setOpaque(false);
-        panelIncognitas.setLayout(new GridLayout(1,3,50,0));
-        panelIncognitas.setBounds(10,30,750,50);
+        panelIntroducirDatos = new JPanel();
+        panelIntroducirDatos.setOpaque(false);
+        panelIntroducirDatos.setLayout(new GridLayout(4,2,50,20));
+        panelIntroducirDatos.setBounds(480,180,300,300);
 
-        JLabel textoIncognitas = new JLabel("Incognitas");
-        listaTextos.add(textoIncognitas);
-        textoIncognitas.setFont(letraTexto);
-        textoIncognitas.setHorizontalAlignment(JLabel.CENTER);
+        JLabel textoPuntoA = new JLabel("Punto A");
+        listaTextos.add(textoPuntoA);
+        textoPuntoA.setFont(letraTexto);
+        textoPuntoA.setHorizontalAlignment(JLabel.CENTER);
 
-        campoIncognitas = new Campo(letraTexto);
-        campoIncognitas.setText("4");
+        campoPuntoA = new Campo(letraTexto);
+        campoPuntoA.setText("1");
 
-        botonConfirmar = new Boton(letraBoton);
-        botonConfirmar.setText("Confirmar");
-        botonConfirmar.setVerticalAlignment(JButton.CENTER);
+        JLabel textoPuntoB = new JLabel("Punto B");
+        listaTextos.add(textoPuntoB);
+        textoPuntoB.setFont(letraTexto);
+        textoPuntoB.setHorizontalAlignment(JLabel.CENTER);
 
-        panelIncognitas.add(textoIncognitas);
-        panelIncognitas.add(campoIncognitas);
-        panelIncognitas.add(botonConfirmar);
+        campoPuntoB = new Campo(letraTexto);
+        campoPuntoB.setText("6");
 
-        JLabel textoCoeficientes = new JLabel("            Coeficientes Variables               Independientes");
-        listaTextos.add(textoCoeficientes);
-        textoCoeficientes.setFont(letraTexto);
-        textoCoeficientes.setHorizontalAlignment(JLabel.CENTER);
-        textoCoeficientes.setBounds(30,100,800,50);
+        JLabel textoN1_3 = new JLabel("N -> 1/3");
+        listaTextos.add(textoN1_3);
+        textoN1_3.setFont(letraTexto);
+        textoN1_3.setHorizontalAlignment(JLabel.CENTER);
+
+        campoN1_3 = new Campo(letraTexto);
+        campoN1_3.setText("8");
+
+        JLabel textoN3_8 = new JLabel("N -> 3/8");
+        listaTextos.add(textoN3_8);
+        textoN3_8.setFont(letraTexto);
+        textoN3_8.setHorizontalAlignment(JLabel.CENTER);
+
+        campoN3_8 = new Campo(letraTexto);
+        campoN3_8.setText("9");
+
+        panelIntroducirDatos.add(textoPuntoA);
+        panelIntroducirDatos.add(campoPuntoA);
+        panelIntroducirDatos.add(textoPuntoB);
+        panelIntroducirDatos.add(campoPuntoB);
+        panelIntroducirDatos.add(textoN1_3);
+        panelIntroducirDatos.add(campoN1_3);
+        panelIntroducirDatos.add(textoN3_8);
+        panelIntroducirDatos.add(campoN3_8);
+
+        // JLabel textoCoeficientes = new JLabel("            Coeficientes Variables               Independientes");
+        // listaTextos.add(textoCoeficientes);
+        // textoCoeficientes.setFont(letraTexto);
+        // textoCoeficientes.setHorizontalAlignment(JLabel.CENTER);
+        // textoCoeficientes.setBounds(30,100,800,50);
 
         JTable tablaVariables = new JTable(new DefaultTableModel());
 
         scrollVariables = new PanelScroll(tablaVariables);
         listaScrolls.add(scrollVariables);
-        scrollVariables.setBounds(20, 170, 600, 300);
-
-        JTable tablaIndependientes = new JTable(new DefaultTableModel());
-
-        scrollIndependientes = new PanelScroll(tablaIndependientes);
-        listaScrolls.add(scrollIndependientes);
-        scrollIndependientes.setBounds(600+20+20, 170, 130, 300);
+        scrollVariables.setBounds(20, 170, 400, 300);
 
         botonCalcular = new Boton(letraBoton);
         botonCalcular.setText("Calcular");
@@ -387,9 +406,8 @@ public class Ventana extends JFrame
         botonCalcular.setBounds(280,500,200,50);
 
         panelDatos.add(scrollVariables);
-        panelDatos.add(scrollIndependientes);
-        panelDatos.add(panelIncognitas);
-        panelDatos.add(textoCoeficientes);
+        panelDatos.add(panelIntroducirDatos);
+        // panelDatos.add(textoCoeficientes);
         panelDatos.add(botonCalcular);
     }
     private void inicializarPanelPrincipal() {
