@@ -38,9 +38,9 @@ public class Ventana extends JFrame
     private JPanel panelBienvenida;
     private JButton botonCalcular;
     private PanelScroll scrollGaussJordan, scrollJordanIndep, scrollMatrizInversa, scrollInversaIndep;
-    private JPanel panelIntroducirDatos;
-    private Campo campoPuntoA, campoPuntoB, campoN1_3, campoN3_8;
-    private PanelScroll scrollVariables, scrollIndependientes;
+    private JPanel panelIntroducirDatos, panelCantidadFilas;
+    private Campo campoPuntoA, campoPuntoB, campoN1_3, campoN3_8, campoCantidadFilas;
+    private PanelScroll scrollXY, scrollIndependientes;
     private PanelScroll scrollResultadosJordan, scrollResultadosInversa;
     private ArrayList<JLabel> listaTextos = new ArrayList<>();
     private ArrayList<PanelScroll> listaScrolls = new ArrayList<>();
@@ -92,12 +92,12 @@ public class Ventana extends JFrame
     }
     private void establecerFuncionBotonCalcular() {
         botonCalcular.addActionListener((e) -> {
-            if(scrollVariables.matriz.isEditing())
-                scrollVariables.matriz.getCellEditor().stopCellEditing();
+            if(scrollXY.matriz.isEditing())
+                scrollXY.matriz.getCellEditor().stopCellEditing();
             if(scrollIndependientes.matriz.isEditing())
                 scrollIndependientes.matriz.getCellEditor().stopCellEditing();
             try {
-                extraerAMatriz(scrollVariables, coeficientesVariables); 
+                extraerAMatriz(scrollXY, coeficientesVariables); 
                 extraerAMatriz(scrollIndependientes, coeficientesIndependientes); 
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, "Error, El Valor Ingresado en la Tabla es Invalido", 
@@ -345,7 +345,7 @@ public class Ventana extends JFrame
         panelIntroducirDatos = new JPanel();
         panelIntroducirDatos.setOpaque(false);
         panelIntroducirDatos.setLayout(new GridLayout(4,2,50,20));
-        panelIntroducirDatos.setBounds(480,180,300,300);
+        panelIntroducirDatos.setBounds(480,170,300,300);
 
         JLabel textoPuntoA = new JLabel("Punto A");
         listaTextos.add(textoPuntoA);
@@ -394,18 +394,32 @@ public class Ventana extends JFrame
         // textoCoeficientes.setHorizontalAlignment(JLabel.CENTER);
         // textoCoeficientes.setBounds(30,100,800,50);
 
-        JTable tablaVariables = new JTable(new DefaultTableModel());
+        panelCantidadFilas = new JPanel();
+        panelCantidadFilas.setOpaque(false);
+        panelCantidadFilas.setLayout(new GridLayout(4,2,50,20));
+        panelCantidadFilas.setBounds(480,170,300,300);
 
-        scrollVariables = new PanelScroll(tablaVariables);
-        listaScrolls.add(scrollVariables);
-        scrollVariables.setBounds(20, 170, 400, 300);
+        JLabel textoCantidadFilas = new JLabel("Cantidad de Filas");
+        listaTextos.add(textoCantidadFilas);
+        textoCantidadFilas.setFont(letraTexto);
+        textoCantidadFilas.setHorizontalAlignment(JLabel.CENTER);
+
+        campoCantidadFilas = new Campo(letraTexto);
+        campoCantidadFilas.setText("5");  
+
+        JTable tablaXY = new JTable(new DefaultTableModel());
+
+        scrollXY = new PanelScroll(tablaXY);
+        listaScrolls.add(scrollXY);
+        scrollXY.setBounds(20, 170, 300, 300);
+        scrollXY.set_dimensiones(0, 2);
 
         botonCalcular = new Boton(letraBoton);
         botonCalcular.setText("Calcular");
         botonCalcular.setVerticalAlignment(JButton.CENTER);
         botonCalcular.setBounds(280,500,200,50);
 
-        panelDatos.add(scrollVariables);
+        panelDatos.add(scrollXY);
         panelDatos.add(panelIntroducirDatos);
         // panelDatos.add(textoCoeficientes);
         panelDatos.add(botonCalcular);
