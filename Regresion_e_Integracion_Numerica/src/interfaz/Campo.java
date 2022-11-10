@@ -11,8 +11,8 @@ public class Campo extends JTextField{
 
     public Campo(Font letra) {
         setFont(letra);
-        setBackground(Ventana.colorIzquierda);
-        setForeground(Color.gray);
+        setBackground(Ventana.colorBarraDeAcciones);
+        setForeground(Ventana.colorTextoConsejoCampos);
         addMouseListener(new QuitarSugerencia(this));
         setHorizontalAlignment(JTextField.CENTER);
         setBorder(null);
@@ -43,7 +43,7 @@ public class Campo extends JTextField{
         @Override
         public void mousePressed(MouseEvent e) {
             campo.setText("");
-            campo.setForeground(Color.BLACK);
+            campo.setForeground(Ventana.colorTextoCampos);
         }
 
         @Override

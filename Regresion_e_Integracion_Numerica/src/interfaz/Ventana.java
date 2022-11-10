@@ -36,10 +36,10 @@ public class Ventana extends JFrame
     private Dimension tamanoVentana;
     private JPanel panelPrincipal, panelDatos, panelResultados;
     private JPanel panelBienvenida;
-    private JButton botonCalcular;
+    private Boton botonCalcular, botonAceptar, botonLimpiar;
     private PanelScroll scrollGaussJordan, scrollJordanIndep, scrollMatrizInversa, scrollInversaIndep;
-    private JPanel panelIntroducirDatos, panelCantidadFilas;
-    private Campo campoPuntoA, campoPuntoB, campoN1_3, campoN3_8, campoCantidadFilas;
+    private JPanel panelIntroducirDatos, panelCantidadFilas, panelTamanoTabla;
+    private Campo campoPuntoA, campoPuntoB, campoN1_3, campoN3_8, campoCantidadFilas, campoTamanoTabla;
     private PanelScroll scrollXY, scrollIndependientes;
     private PanelScroll scrollResultadosJordan, scrollResultadosInversa;
     private ArrayList<JLabel> listaTextos = new ArrayList<>();
@@ -51,14 +51,20 @@ public class Ventana extends JFrame
 
     private DecimalFormat formato = new DecimalFormat("#.############");
 
-    public final static Color colorIzquierda = new Color(104,249,205), 
-    colorSuperior = new Color(29,248,181), 
-    colorBarraDeAcciones = new Color(24,196,145),
+    private static int rgb(String hex){
+        return Integer.parseInt(hex,16);
+    }
+
+    public final static Color colorIzquierda = new Color(rgb("CC00CC")), 
+    colorSuperior = new Color(rgb("FF00FF")), 
+    colorBarraDeAcciones = new Color(rgb("FF4DFF")),
     colorCentral = Color.white,
-    colorSeleccionarBotonChico = new Color(104,249,205),
-    colorBoton = new Color(14,120,88),
-    colorSeleccionarBoton = new Color(87,108,102),
-    colorTitulo = colorBoton;
+    colorSeleccionarBotonChico = colorSuperior,
+    colorBoton = new Color(rgb("800080")),
+    colorSeleccionarBoton = new Color(rgb("FF00FF")),
+    colorTitulo = colorBoton,
+    colorTextoConsejoCampos = new Color(rgb("e2e2e2")),
+    colorTextoCampos = Color.white;
     
 
     private Font letraMenu = new Font("Forte", Font.PLAIN, 40),
@@ -235,106 +241,32 @@ public class Ventana extends JFrame
         panelResultados.setOpaque(false);
         panelResultados.setLayout(null);
 
-        JLabel textoGaussJordan = new JLabel("Gauss-Jordan");
-        listaTextos.add(textoGaussJordan);
-        textoGaussJordan.setFont(letraTexto);
-        textoGaussJordan.setHorizontalAlignment(JLabel.CENTER);
-        textoGaussJordan.setBounds(220, 5, 300, 50);
+        JLabel resultadosRegresion = new JLabel("Resultados de la Regresión Polinomial");
+        listaTextos.add(resultadosRegresion);
+        resultadosRegresion.setFont(letraTexto);
+        resultadosRegresion.setHorizontalAlignment(JLabel.CENTER);
+        resultadosRegresion.setBounds(0,0,800,50);
 
-        int posVertical = 60;
-        int posHorizontal = 20; 
-        int alto = 150;
-        int ancho = 600;
-        JTable tablaGaussJordan = new JTable(new DefaultTableModel(){
-            public boolean isCellEditable(int rowIndex,int columnIndex){return false;}
-        });
-        
-        scrollGaussJordan = new PanelScroll(tablaGaussJordan);
-        listaScrolls.add(scrollGaussJordan);
-        scrollGaussJordan.setBounds(posHorizontal, posVertical, ancho, alto);
-        
-        posVertical += alto*2;
+        JLabel resultadosSimpsons = new JLabel("Resultados de los Metodos de Simpson");
+        listaTextos.add(resultadosSimpsons);
+        resultadosSimpsons.setFont(letraTexto);
+        resultadosSimpsons.setHorizontalAlignment(JLabel.CENTER);
+        resultadosSimpsons.setBounds(0,300,800,50);
 
-        JLabel textoMatrizInversa = new JLabel("Matriz Inversa * Matriz B");
-        listaTextos.add(textoMatrizInversa);
-        textoMatrizInversa.setFont(letraTexto);
-        textoMatrizInversa.setHorizontalAlignment(JLabel.CENTER);
-        textoMatrizInversa.setBounds(150, posVertical - 60, 450, 50);
-
-        JTable tablaMatrizInversa = new JTable(new DefaultTableModel(){
-            public boolean isCellEditable(int rowIndex,int columnIndex){return false;}
-        });
-
-        scrollMatrizInversa = new PanelScroll(tablaMatrizInversa);
-        listaScrolls.add(scrollMatrizInversa);
-        scrollMatrizInversa.setBounds(posHorizontal, posVertical, ancho, alto);
-
-        posHorizontal += ancho + 40;
-        ancho = 100;
-
-        JTable tablaInversaIndep = new JTable(new DefaultTableModel(){
-            public boolean isCellEditable(int rowIndex,int columnIndex){return false;}
-        });
-        
-        scrollInversaIndep = new PanelScroll(tablaInversaIndep);
-        listaScrolls.add(scrollInversaIndep);
-        scrollInversaIndep.setBounds(posHorizontal,posVertical,ancho,alto);
-        
-        posVertical -= alto*2;
-
-        JTable tablaJordanIndep = new JTable(new DefaultTableModel(){
-            public boolean isCellEditable(int rowIndex,int columnIndex){return false;}
-        });
-        
-        scrollJordanIndep = new PanelScroll(tablaJordanIndep);
-        listaScrolls.add(scrollJordanIndep);
-        scrollJordanIndep.setBounds(posHorizontal,posVertical,ancho,alto);
-
-        posVertical += alto + 40;
-        ancho = 700 + 50;
-        posHorizontal = 20;
-        alto = 39;
-
-        JTable tablaResultados = new JTable(new DefaultTableModel(){
-            public boolean isCellEditable(int rowIndex,int columnIndex){return false;}
-        });
-
-        scrollResultadosJordan = new PanelScroll(tablaResultados);
-        listaScrolls.add(scrollResultadosJordan);
-        scrollResultadosJordan.setBounds(posHorizontal, posVertical, ancho, alto);
 
         JLabel resultadosObtenidos1 = new JLabel("Resultados Obtenidos");
         listaTextos.add(resultadosObtenidos1);
         resultadosObtenidos1.setFont(letraTexto);
         resultadosObtenidos1.setHorizontalAlignment(JLabel.CENTER);
-        resultadosObtenidos1.setBounds(posHorizontal, posVertical-40, ancho, alto);
-
-        posVertical += 300;
-
-        tablaResultados = new JTable(new DefaultTableModel(){
-            public boolean isCellEditable(int rowIndex,int columnIndex){return false;}
-        });
-
-        scrollResultadosInversa = new PanelScroll(tablaResultados);
-        listaScrolls.add(scrollResultadosInversa);
-        scrollResultadosInversa.setBounds(posHorizontal, posVertical, ancho, alto);
 
         JLabel resultadosObtenidos2 = new JLabel("Resultados Obtenidos");
         listaTextos.add(resultadosObtenidos2);
         resultadosObtenidos2.setFont(letraTexto);
         resultadosObtenidos2.setHorizontalAlignment(JLabel.CENTER);
-        resultadosObtenidos2.setBounds(posHorizontal, posVertical-40, ancho, alto);
         
-        panelResultados.add(textoGaussJordan);
-        panelResultados.add(scrollGaussJordan);
-        panelResultados.add(scrollJordanIndep);
-        panelResultados.add(scrollResultadosJordan);
+        panelResultados.add(resultadosSimpsons);
         panelResultados.add(resultadosObtenidos1);
-        
-        panelResultados.add(textoMatrizInversa);
-        panelResultados.add(scrollMatrizInversa);
-        panelResultados.add(scrollInversaIndep);
-        panelResultados.add(scrollResultadosInversa);
+        panelResultados.add(resultadosRegresion);
         panelResultados.add(resultadosObtenidos2);
     }
     private void inicializarPanelDatos() {
@@ -413,13 +345,59 @@ public class Ventana extends JFrame
         listaScrolls.add(scrollXY);
         scrollXY.setBounds(20, 170, 300, 300);
         scrollXY.set_dimensiones(0, 2);
+        scrollXY.cambiar_identificadores("X,Y".split(","));
 
         botonCalcular = new Boton(letraBoton);
         botonCalcular.setText("Calcular");
         botonCalcular.setVerticalAlignment(JButton.CENTER);
         botonCalcular.setBounds(280,500,200,50);
 
+        JLabel textoRegresion = new JLabel("Regresión Polinomial");
+        listaTextos.add(textoRegresion);
+        textoRegresion.setFont(letraTexto);
+        textoRegresion.setHorizontalAlignment(JLabel.CENTER);
+        textoRegresion.setBounds(20,0,300,50);
+
+        JLabel textoSimpsons = new JLabel("Metodos Simpsons");
+        listaTextos.add(textoSimpsons);
+        textoSimpsons.setFont(letraTexto);
+        textoSimpsons.setHorizontalAlignment(JLabel.CENTER);
+        textoSimpsons.setBounds(480,0,300,50);
+
+        panelTamanoTabla = new JPanel();
+        panelTamanoTabla.setOpaque(false);
+        // panelTamanoTabla.setLayout(new GridLayout(3,1,0,0));
+        panelTamanoTabla.setBounds(0,50,400,200);
+
+        JLabel textoTamanoTabla = new JLabel("Cantidad de Filas   ");
+        listaTextos.add(textoTamanoTabla);
+        textoTamanoTabla.setFont(letraTexto);
+        textoTamanoTabla.setHorizontalAlignment(JLabel.CENTER);
+
+        campoTamanoTabla = new Campo(letraTexto);
+        campoTamanoTabla.setPreferredSize(new Dimension(100,50));
+        campoTamanoTabla.setText("5");
+        
+        botonAceptar = new Boton(letraBoton);
+        botonAceptar.setText("Aceptar");
+        botonAceptar.setVerticalAlignment(JButton.CENTER);
+        botonAceptar.setPreferredSize(new Dimension(200,50));
+
+        
+        panelTamanoTabla.add(textoTamanoTabla);
+        panelTamanoTabla.add(campoTamanoTabla);
+        panelTamanoTabla.add(botonAceptar);
+
+        botonLimpiar = new Boton(letraBoton);
+        botonLimpiar.setText("Limpiar");
+        botonLimpiar.setVerticalAlignment(JButton.CENTER);
+        botonLimpiar.setBounds(20,470,200,50);
+        
+        panelDatos.add(textoRegresion);
+        panelDatos.add(textoSimpsons);
+        panelDatos.add(panelTamanoTabla);
         panelDatos.add(scrollXY);
+        panelDatos.add(botonLimpiar);
         panelDatos.add(panelIntroducirDatos);
         // panelDatos.add(textoCoeficientes);
         panelDatos.add(botonCalcular);
@@ -439,7 +417,7 @@ public class Ventana extends JFrame
         textoMetodos.setFont(letraSubTitulo);
         textoMetodos.setHorizontalAlignment(JLabel.CENTER);
 
-        JLabel textoMetodos2 = new JLabel("y Regresion Polinomial");
+        JLabel textoMetodos2 = new JLabel("y Regresión Polinomial");
         textoMetodos2.setFont(letraSubTitulo);
         textoMetodos2.setHorizontalAlignment(JLabel.CENTER);
 
@@ -485,7 +463,7 @@ public class Ventana extends JFrame
         etiqueta.setIcon(icono);
     }
     private void inicializarPanelSuperior() {
-        JLabel textoTitulo = new JLabel("Cálculo de Integrales y Regresion");
+        JLabel textoTitulo = new JLabel("Cálculo de Integrales y Regresión");
         textoTitulo.setFont(letraTitulo);
         textoTitulo.setHorizontalAlignment(JLabel.CENTER);
         textoTitulo.setForeground(colorTitulo);
