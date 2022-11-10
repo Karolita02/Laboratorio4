@@ -6,7 +6,7 @@ import metodos_numericos.integracion_numerica.Simpson1_3;
 import metodos_numericos.integracion_numerica.Simpson3_8;
 import metodos_numericos.integracion_numerica.datos.Funcion;
 
-public class Principales 
+public class Principal 
 {
     public static void main(String[] args) 
     {
