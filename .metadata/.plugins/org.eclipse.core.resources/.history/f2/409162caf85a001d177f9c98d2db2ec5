@@ -1,5 +1,0 @@
-import metodos.Gauss_Jordan;
-
-public class asd {
-	Gauss_Jordan gauss = new Gauss_Jordan(null, 0);
-}
