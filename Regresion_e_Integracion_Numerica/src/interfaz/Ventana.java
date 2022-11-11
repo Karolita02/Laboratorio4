@@ -23,9 +23,13 @@ import javax.swing.JTable;
 import javax.swing.event.MouseInputListener;
 import javax.swing.table.DefaultTableModel;
 
-import metodos.Gauss_Jordan;
-import metodos.Matricial_Inversa;
-import metodos.Resolucion_de_Sistemas_de_Ecuaciones;
+import metodos_numericos.integracion_numerica.Integracion_Numerica;
+import metodos_numericos.integracion_numerica.Simpson;
+import metodos_numericos.integracion_numerica.Simpson1_3;
+import metodos_numericos.integracion_numerica.Simpson3_8;
+import metodos_numericos.integracion_numerica.datos.Funcion;
+import metodos_numericos.regresion.Polinomial_2do_Grado;
+import metodos_numericos.regresion.Tabla;
 
 public class Ventana extends JFrame
 {
@@ -37,15 +41,14 @@ public class Ventana extends JFrame
     private JPanel panelPrincipal, panelDatos, panelResultados;
     private JPanel panelBienvenida;
     private Boton botonCalcular, botonAceptar, botonLimpiar;
-    private PanelScroll scrollGaussJordan, scrollJordanIndep, scrollMatrizInversa, scrollInversaIndep;
-    private JPanel panelIntroducirDatos, panelCantidadFilas, panelTamanoTabla;
-    private Campo campoPuntoA, campoPuntoB, campoN1_3, campoN3_8, campoCantidadFilas, campoTamanoTabla;
-    private PanelScroll scrollXY, scrollIndependientes;
-    private PanelScroll scrollResultadosJordan, scrollResultadosInversa;
+    private JPanel panelIntroducirDatos, panelCantidadFilas;
+    private Campo campoPuntoA, campoPuntoB, campoN1_3, campoN3_8, campoCantidadFilas;
+    private PanelScroll scrollXY;
     private ArrayList<JLabel> listaTextos = new ArrayList<>();
     private ArrayList<PanelScroll> listaScrolls = new ArrayList<>();
-
-    private double[][] coeficientesVariables, coeficientesIndependientes;
+    private JLabel textoA0, textoA1, textoA2, textoR2, textoR, textoModelo;
+    private JLabel textoA, textoB, textoN1_3, textoN3_8;
+    private JLabel textoSimpson, textoSimpson1_3, textoSimpson3_8, textoFuncion;
 
     private int xMouse, yMouse;
 
@@ -62,7 +65,7 @@ public class Ventana extends JFrame
     colorSeleccionarBotonChico = colorSuperior,
     colorBoton = new Color(rgb("800080")),
     colorSeleccionarBoton = new Color(rgb("FF00FF")),
-    colorTitulo = colorBoton,
+    colorTitulo = Color.white,
     colorTextoConsejoCampos = new Color(rgb("e2e2e2")),
     colorTextoCampos = Color.white;
     
@@ -75,19 +78,41 @@ public class Ventana extends JFrame
     letraBoton = new Font("Matura MT Script Capitals", Font.PLAIN, 40),
     letraBotonAccionVentana = new Font("Bauhaus 93", Font.PLAIN, 20);
 
-    public Ventana(){
+    public Ventana(Funcion funcion, String textoFuncion){
         inicializarVentana();
         inicializarPanelIzquierdo();
         inicializarPanelSuperior();
         inicializarPanelCentral();
         panelCentral.add(panelPrincipal); // para que sea el primero en aparecer
         establecerFuncionBotonesMenu();
-        // establacerFuncionBotonConfirmar();
-        establecerFuncionBotonCalcular();
+        establecerFuncionBotonCalcular(funcion, textoFuncion);
+        establecerFuncionBotonAceptar();
+        establecerFuncionBotonLimpiar();
         establecerFuncionesParaLimpiarTablas();
         panelAccionesVentana.addMouseMotionListener(new Movilidad());
         panelAccionesVentana.addMouseListener(new Movilidad());
         setVisible(true);
+    }
+    private void establecerFuncionBotonLimpiar() {
+        botonLimpiar.addActionListener((e) -> {
+            if(scrollXY.matriz.isEditing())
+                scrollXY.matriz.getCellEditor().stopCellEditing();
+            int cant = scrollXY.modeloTabla.getRowCount();
+            scrollXY.modeloTabla.setRowCount(0);
+            scrollXY.modeloTabla.setRowCount(cant);
+        });
+    }
+    private void establecerFuncionBotonAceptar() {
+        botonAceptar.addActionListener((e) -> {
+            if(scrollXY.matriz.isEditing())
+                scrollXY.matriz.getCellEditor().stopCellEditing();
+            try {
+                int cant = Integer.parseInt(campoCantidadFilas.getText());
+                scrollXY.modeloTabla.setRowCount(cant);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Error, Cantidad de Filas Invalida", "ERROR CANTIDAD INVALIDA", JOptionPane.ERROR_MESSAGE, null);
+            }
+        });
     }
     private void establecerFuncionesParaLimpiarTablas() {
         for (JLabel texto : listaTextos)
@@ -96,117 +121,123 @@ public class Ventana extends JFrame
         panelDatos.addMouseListener(new limpiarSeleccion());
         panelIntroducirDatos.addMouseListener(new limpiarSeleccion());
     }
-    private void establecerFuncionBotonCalcular() {
+    private void establecerFuncionBotonCalcular(Funcion funcion, String textoFuncion) {
         botonCalcular.addActionListener((e) -> {
             if(scrollXY.matriz.isEditing())
                 scrollXY.matriz.getCellEditor().stopCellEditing();
-            if(scrollIndependientes.matriz.isEditing())
-                scrollIndependientes.matriz.getCellEditor().stopCellEditing();
+            double[] x, y;
+            double a,b;
+            int n1_3,n3_8;
             try {
-                extraerAMatriz(scrollXY, coeficientesVariables); 
-                extraerAMatriz(scrollIndependientes, coeficientesIndependientes); 
+                x = extraerAMatriz(scrollXY, 0); 
+                y = extraerAMatriz(scrollXY, 1); 
+                
+                a = Double.parseDouble(campoPuntoA.getText());
+                b = Double.parseDouble(campoPuntoB.getText());
+                n1_3 = Integer.parseInt(campoN1_3.getText());
+                boolean seguir = true;
+                if (n1_3 % 2 != 0)
+                    seguir = opcionSiNo("Esta Seguro de querer proceder?\nAl no colocar un numero PAR no podremos asegurar la exactitud del calculo", "Precausion Numero Par Recomendado");
+                if(!seguir) return;
+                n3_8 = Integer.parseInt(campoN3_8.getText());
+                if (n3_8 % 3 != 0)
+                    seguir = opcionSiNo("Esta Seguro de querer proceder?\nAl no colocar un numero MULTIPLO DE 3 no podremos asegurar la exactitud del calculo", "Precausion Numero Multiplo de 3 Recomendado");
+                if(!seguir) return;
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Error, El Valor Ingresado en la Tabla es Invalido", 
+                JOptionPane.showMessageDialog(this, "Error, El Valor Ingresado en la Tabla es Invalido" + ex.getCause(), 
                     "ERROR VALOR INVALIDO", JOptionPane.ERROR_MESSAGE, null);
                 return;
             }
+
+            if(x != null && y != null){
+                Tabla tabla = new Tabla();
+                tabla.x = x;
+                tabla.y = y;
     
-            int numeroIncognitas = coeficientesVariables.length;
+                var regresion = new Polinomial_2do_Grado(tabla);
+                regresion.calcularCoeficientes();
+                
+                JLabel[] textos1 = {
+                    textoA0,
+                    textoA1,
+                    textoA2,
+                    textoR2,
+                    textoR
+                };
     
-            Resolucion_de_Sistemas_de_Ecuaciones[] metodos = {
-                new Gauss_Jordan(coeficientesVariables, coeficientesIndependientes, numeroIncognitas),
-                new Matricial_Inversa(coeficientesVariables, coeficientesIndependientes, numeroIncognitas)
-            };
+                double[] valores1 = {
+                    regresion.a[0],
+                    regresion.a[1],
+                    regresion.a[2],
+                    regresion.getR2(),
+                    regresion.getR()
+                };
     
-            PanelScroll[] panelesScroll = {
-                scrollGaussJordan,
-                scrollJordanIndep,
-                scrollResultadosJordan,
-                scrollMatrizInversa,
-                scrollInversaIndep,
-                scrollResultadosInversa
-            };
-    
-            var actual = 0;
-            for (var metodo : metodos){
-                metodo.calcular();
-                extraerATabla(metodo, panelesScroll[actual],false, coeficientesIndependientes);
-                extraerATabla(metodo, panelesScroll[actual+1],true, coeficientesIndependientes);
-                ponerResultadosEnTabla(metodo, panelesScroll[actual+2]);
-                actual += 3;
+                for (int i = 0; i < textos1.length; i++) 
+                    textos1[i].setText(textos1[i].getText().substring(0,textos1[i].getText().indexOf("=")+2) + formato.format(valores1[i]));
+                    
+                textoModelo.setText(textoModelo.getText().substring(0,textoModelo.getText().indexOf(":")+2) + regresion.getModelo());
             }
+
+            Integracion_Numerica[] metodosSimpsons = {
+                new Simpson(funcion, a, b),
+                new Simpson1_3(funcion, a, b),
+                new Simpson3_8(funcion, a, b)
+            };
+
+            metodosSimpsons[1].setN(n1_3);
+            metodosSimpsons[2].setN(n3_8);
+
+            double[] resulSimpsons = new double[3];
+
+            for (int actual = 0; actual < metodosSimpsons.length; actual++) 
+                resulSimpsons[actual] = metodosSimpsons[actual].calcular();
             
+            JLabel[] textos2 = {
+                textoA,
+                textoB,
+                textoN1_3,
+                textoN3_8,
+                textoSimpson,
+                textoSimpson1_3,
+                textoSimpson3_8
+            };
+
+            double[] valores2 = {
+                a,
+                b,
+                n1_3,
+                n3_8,
+                resulSimpsons[0],
+                resulSimpsons[1],
+                resulSimpsons[2],
+            };
+
+            for (int i = 0; i < textos2.length; i++) 
+                textos2[i].setText(textos2[i].getText().substring(0,textos2[i].getText().indexOf("=")+2) + formato.format(valores2[i]));
+                
+            this.textoFuncion.setText(this.textoFuncion.getText().substring(0,this.textoFuncion.getText().indexOf("=")+2) + textoFuncion);
+
             JOptionPane.showMessageDialog(this, "Los Calculos Han Sido Realizados Con Exito", 
             "Calculos Realizados Con Exito", JOptionPane.INFORMATION_MESSAGE, null);
         });
     }
-    private void ponerResultadosEnTabla(Resolucion_de_Sistemas_de_Ecuaciones metodo, PanelScroll tabla){
-        var valores = metodo.get_sistema_de_ecuaciones().get_coeficientes_independientes();
-        for (int pos = 0; pos < metodo.get_numero_incognitas(); pos++)
-            tabla.modeloTabla.setValueAt(formato.format(valores[pos][0]), 0, pos);
-    }
-    private void extraerATabla(Resolucion_de_Sistemas_de_Ecuaciones metodo, PanelScroll tabla, boolean esIndependiente, double[][] matrizB){
-        var matrizResultado = esIndependiente ? 
-            metodo.get_sistema_de_ecuaciones().get_coeficientes_independientes() :
-            metodo.get_sistema_de_ecuaciones().get_coeficientes_variables();
-        var objetoResultado = esIndependiente && metodo instanceof Matricial_Inversa ? 
-            convertirMatrizAObjeto(matrizB) :
-            convertirMatrizAObjeto(matrizResultado);
-        tabla.modeloTabla.setRowCount(0);
-        for (Object[] fila : objetoResultado) 
-            tabla.modeloTabla.addRow(fila);
-    }
-    private Object[][] convertirMatrizAObjeto(double[][] matriz){
-        var resultado = new Object[matriz.length][matriz[0].length];
+    private double[] extraerAMatriz(PanelScroll scrollTabla, int columna) {
+        if(scrollTabla.modeloTabla.getRowCount() == 0) return null;
+        var matriz = new double[scrollTabla.modeloTabla.getRowCount()];
         for (int i = 0; i < matriz.length; i++) 
-            for (int j = 0; j < matriz[0].length; j++) 
-                resultado[i][j] = formato.format(matriz[i][j]);
-        return resultado;
+            matriz[i] = Double.parseDouble(scrollTabla.modeloTabla.getDataVector().get(i).get(columna).toString());
+        return matriz;
     }
-    private void extraerAMatriz(PanelScroll scrollTabla, double[][] matriz) {
-        var tablaVariables = scrollTabla.modeloTabla.getDataVector();
-        for (int i = 0; i < matriz.length; i++) 
-            for (int j = 0; j < matriz[0].length; j++) 
-                matriz[i][j] = Double.parseDouble(tablaVariables.get(i).get(j).toString());
+
+    private boolean opcionSiNo(String mensaje, String titulo){
+        while (true) {
+            int valor = JOptionPane.showOptionDialog(null, mensaje, titulo, 0, 1, null, "Si, No".split(", "), null);
+            if(valor != -1)
+                return valor == 0; // 0 = Si, 1 = No, -1 = Cerrar la ventana
+            JOptionPane.showMessageDialog(this, "ERROR, DEBE ELEGIR UNA DE LAS OPCIONES", "ERROR OPCION INVALIDA", JOptionPane.ERROR_MESSAGE);
+        }
     }
-    // private void establacerFuncionBotonConfirmar() {
-    //     botonConfirmar.addActionListener((e) -> {
-    //         try {
-    //             int tamano = Integer.parseInt(campoPuntoA.getText());
-
-    //             scrollVariables.set_dimensiones(tamano, tamano);
-    //             scrollIndependientes.set_dimensiones(tamano, 1);
-    //             scrollIndependientes.cambiar_identificadores(new String[]{" "});
-                
-    //             scrollGaussJordan.set_dimensiones(tamano, tamano);
-    //             scrollJordanIndep.set_dimensiones(tamano, 1);
-    //             scrollJordanIndep.cambiar_identificadores(new String[]{" "});
-                
-    //             scrollMatrizInversa.set_dimensiones(tamano, tamano);
-    //             scrollInversaIndep.set_dimensiones(tamano, 1);
-    //             scrollInversaIndep.cambiar_identificadores(new String[]{"Matriz B"});
-                
-    //             scrollResultadosJordan.set_dimensiones(1, tamano);
-    //             scrollResultadosInversa.set_dimensiones(1, tamano);
-
-
-    //             coeficientesVariables = new double[tamano][tamano];
-    //             coeficientesIndependientes = new double[tamano][1];
-    //         } catch (Exception ex) {
-    //             JOptionPane.showMessageDialog(this, "Error, Numero Ingresado Invalido", 
-    //             "ERROR NUMERO INVALIDO", JOptionPane.ERROR_MESSAGE, null);
-    //         }
-    //     });
-    // }
-
-    // private boolean opcionSiNo(String mensaje, String titulo){
-    //     while (true) {
-    //         int valor = JOptionPane.showOptionDialog(null, mensaje, titulo, 0, 1, null, "Si, No".split(", "), null);
-    //         if(valor != -1)
-    //             return valor == 0; // 0 = Si, 1 = No, -1 = Cerrar la ventana
-    //         JOptionPane.showMessageDialog(this, "ERROR, DEBE ELEGIR UNA DE LAS OPCIONES", "ERROR OPCION INVALIDA", JOptionPane.ERROR_MESSAGE);
-    //     }
-    // }
     private void establecerFuncionBotonesMenu() {
         botonPrincipal.addActionListener((e) -> {
             panelCentral.removeAll();
@@ -241,33 +272,148 @@ public class Ventana extends JFrame
         panelResultados.setOpaque(false);
         panelResultados.setLayout(null);
 
+        inicializarPanelSimpsons(); 
+        inicializarPanelRegresion();
+    }
+    private void inicializarPanelSimpsons() {
+        JLabel resultadosSimpsons = new JLabel("Resultados de los Metodos de Simpson");
+        resultadosSimpsons.setFont(letraTexto);
+        resultadosSimpsons.setBackground(colorIzquierda);
+        resultadosSimpsons.setOpaque(true);
+        resultadosSimpsons.setForeground(colorTextoCampos);
+        resultadosSimpsons.setHorizontalAlignment(JLabel.CENTER);
+        resultadosSimpsons.setBounds(0,250,800,50);
+
+        textoA = new JLabel("Desde A = ??");
+        textoA.setFont(letraTexto);
+        textoA.setHorizontalAlignment(JLabel.CENTER);
+
+        textoB = new JLabel("Hasta B = ??");
+        textoB.setFont(letraTexto);
+        textoB.setHorizontalAlignment(JLabel.CENTER);
+
+        textoN1_3 = new JLabel("N -> 1/3 = ??");
+        textoN1_3.setFont(letraTexto);
+        textoN1_3.setHorizontalAlignment(JLabel.CENTER);
+
+        textoN3_8 = new JLabel("N -> 3/8 = ??");
+        textoN3_8.setFont(letraTexto);
+        textoN3_8.setHorizontalAlignment(JLabel.CENTER);
+
+        textoSimpson = new JLabel("Simpson = ??");
+        textoSimpson.setFont(letraTexto);
+        textoSimpson.setHorizontalAlignment(JLabel.CENTER);
+
+        textoSimpson1_3 = new JLabel("Simpson 1/3 = ??");
+        textoSimpson1_3.setFont(letraTexto);
+        textoSimpson1_3.setHorizontalAlignment(JLabel.CENTER);
+
+        textoSimpson3_8 = new JLabel("Simpson 3/8 = ??");
+        textoSimpson3_8.setFont(letraTexto);
+        textoSimpson3_8.setHorizontalAlignment(JLabel.CENTER);
+
+        textoFuncion = new JLabel("f(x) = ??");
+        textoFuncion.setFont(letraTexto);
+        textoFuncion.setHorizontalAlignment(JLabel.CENTER);
+
+        JPanel panelSimpsons = new JPanel();
+        panelSimpsons.setOpaque(false);
+        panelSimpsons.setBounds(0,300,800,400);
+
+        JPanel panelLimites = new JPanel();
+        panelLimites.setOpaque(false);
+        panelLimites.setLayout(new GridLayout(2,1));
+        panelLimites.setPreferredSize(new Dimension(350,90));
+        
+        panelLimites.add(textoA);
+        panelLimites.add(textoB);
+        
+        JPanel panelDivisiones = new JPanel();
+        panelDivisiones.setOpaque(false);
+        panelDivisiones.setLayout(new GridLayout(2,1));
+        panelDivisiones.setPreferredSize(new Dimension(350,90));
+
+        panelDivisiones.add(textoN1_3);
+        panelDivisiones.add(textoN3_8);
+
+        JPanel panelMetodosSimpsons = new JPanel();
+        panelMetodosSimpsons.setOpaque(false);
+        panelMetodosSimpsons.setLayout(new GridLayout(3,1));
+        panelMetodosSimpsons.setPreferredSize(new Dimension(800,150));
+
+        panelMetodosSimpsons.add(textoSimpson);
+        panelMetodosSimpsons.add(textoSimpson1_3);
+        panelMetodosSimpsons.add(textoSimpson3_8);
+
+        panelSimpsons.add(panelLimites);
+        panelSimpsons.add(panelDivisiones);
+        panelSimpsons.add(panelMetodosSimpsons);
+        panelSimpsons.add(textoFuncion);
+
+        panelResultados.add(resultadosSimpsons);
+        panelResultados.add(panelSimpsons);
+    }
+    private void inicializarPanelRegresion() {
         JLabel resultadosRegresion = new JLabel("Resultados de la Regresión Polinomial");
-        listaTextos.add(resultadosRegresion);
         resultadosRegresion.setFont(letraTexto);
+        resultadosRegresion.setBackground(colorIzquierda);
+        resultadosRegresion.setOpaque(true);
+        resultadosRegresion.setForeground(colorTextoCampos);
         resultadosRegresion.setHorizontalAlignment(JLabel.CENTER);
         resultadosRegresion.setBounds(0,0,800,50);
 
-        JLabel resultadosSimpsons = new JLabel("Resultados de los Metodos de Simpson");
-        listaTextos.add(resultadosSimpsons);
-        resultadosSimpsons.setFont(letraTexto);
-        resultadosSimpsons.setHorizontalAlignment(JLabel.CENTER);
-        resultadosSimpsons.setBounds(0,300,800,50);
+        textoA0 = new JLabel("a0 = ??");
+        textoA0.setFont(letraTexto);
+        textoA0.setHorizontalAlignment(JLabel.CENTER);
 
+        textoA1 = new JLabel("a1 = ??");
+        textoA1.setFont(letraTexto);
+        textoA1.setHorizontalAlignment(JLabel.CENTER);
 
-        JLabel resultadosObtenidos1 = new JLabel("Resultados Obtenidos");
-        listaTextos.add(resultadosObtenidos1);
-        resultadosObtenidos1.setFont(letraTexto);
-        resultadosObtenidos1.setHorizontalAlignment(JLabel.CENTER);
+        textoA2 = new JLabel("a2 = ??");
+        textoA2.setFont(letraTexto);
+        textoA2.setHorizontalAlignment(JLabel.CENTER);
 
-        JLabel resultadosObtenidos2 = new JLabel("Resultados Obtenidos");
-        listaTextos.add(resultadosObtenidos2);
-        resultadosObtenidos2.setFont(letraTexto);
-        resultadosObtenidos2.setHorizontalAlignment(JLabel.CENTER);
+        textoR2 = new JLabel("r^2 = ??");
+        textoR2.setFont(letraTexto);
+        textoR2.setHorizontalAlignment(JLabel.CENTER);
+
+        textoR = new JLabel("r = ??");
+        textoR.setFont(letraTexto);
+        textoR.setHorizontalAlignment(JLabel.CENTER);
+
+        textoModelo = new JLabel("Modelo: ??");
+        textoModelo.setFont(letraTexto);
+        textoModelo.setHorizontalAlignment(JLabel.CENTER);
+
+        JPanel panelRegresion = new JPanel();
+        panelRegresion.setOpaque(false);
+        panelRegresion.setBounds(0,50,800,200);
+
+        JPanel panelCoeficientes = new JPanel();
+        panelCoeficientes.setOpaque(false);
+        panelCoeficientes.setLayout(new GridLayout(3,1));
+        panelCoeficientes.setPreferredSize(new Dimension(350,150));
         
-        panelResultados.add(resultadosSimpsons);
-        panelResultados.add(resultadosObtenidos1);
+        
+        panelCoeficientes.add(textoA0);
+        panelCoeficientes.add(textoA1);
+        panelCoeficientes.add(textoA2);
+        
+        JPanel panelDetYCorr = new JPanel();
+        panelDetYCorr.setOpaque(false);
+        panelDetYCorr.setLayout(new GridLayout(2,1));
+        panelDetYCorr.setPreferredSize(new Dimension(350,150));
+
+        panelDetYCorr.add(textoR2);
+        panelDetYCorr.add(textoR);
+
+        panelRegresion.add(panelCoeficientes);
+        panelRegresion.add(panelDetYCorr);
+        panelRegresion.add(textoModelo);
+        
         panelResultados.add(resultadosRegresion);
-        panelResultados.add(resultadosObtenidos2);
+        panelResultados.add(panelRegresion);
     }
     private void inicializarPanelDatos() {
         panelDatos = new JPanel();
@@ -331,14 +477,6 @@ public class Ventana extends JFrame
         panelCantidadFilas.setLayout(new GridLayout(4,2,50,20));
         panelCantidadFilas.setBounds(480,170,300,300);
 
-        JLabel textoCantidadFilas = new JLabel("Cantidad de Filas");
-        listaTextos.add(textoCantidadFilas);
-        textoCantidadFilas.setFont(letraTexto);
-        textoCantidadFilas.setHorizontalAlignment(JLabel.CENTER);
-
-        campoCantidadFilas = new Campo(letraTexto);
-        campoCantidadFilas.setText("5");  
-
         JTable tablaXY = new JTable(new DefaultTableModel());
 
         scrollXY = new PanelScroll(tablaXY);
@@ -362,21 +500,21 @@ public class Ventana extends JFrame
         listaTextos.add(textoSimpsons);
         textoSimpsons.setFont(letraTexto);
         textoSimpsons.setHorizontalAlignment(JLabel.CENTER);
-        textoSimpsons.setBounds(480,0,300,50);
+        textoSimpsons.setBounds(480,50,300,50);
 
-        panelTamanoTabla = new JPanel();
-        panelTamanoTabla.setOpaque(false);
+        panelCantidadFilas = new JPanel();
+        panelCantidadFilas.setOpaque(false);
         // panelTamanoTabla.setLayout(new GridLayout(3,1,0,0));
-        panelTamanoTabla.setBounds(0,50,400,200);
+        panelCantidadFilas.setBounds(0,50,400,200);
 
-        JLabel textoTamanoTabla = new JLabel("Cantidad de Filas   ");
-        listaTextos.add(textoTamanoTabla);
-        textoTamanoTabla.setFont(letraTexto);
-        textoTamanoTabla.setHorizontalAlignment(JLabel.CENTER);
+        JLabel textoCantidadFilas = new JLabel("Cantidad de Filas   ");
+        listaTextos.add(textoCantidadFilas);
+        textoCantidadFilas.setFont(letraTexto);
+        textoCantidadFilas.setHorizontalAlignment(JLabel.CENTER);
 
-        campoTamanoTabla = new Campo(letraTexto);
-        campoTamanoTabla.setPreferredSize(new Dimension(100,50));
-        campoTamanoTabla.setText("5");
+        campoCantidadFilas = new Campo(letraTexto);
+        campoCantidadFilas.setPreferredSize(new Dimension(100,50));
+        campoCantidadFilas.setText("5");
         
         botonAceptar = new Boton(letraBoton);
         botonAceptar.setText("Aceptar");
@@ -384,9 +522,9 @@ public class Ventana extends JFrame
         botonAceptar.setPreferredSize(new Dimension(200,50));
 
         
-        panelTamanoTabla.add(textoTamanoTabla);
-        panelTamanoTabla.add(campoTamanoTabla);
-        panelTamanoTabla.add(botonAceptar);
+        panelCantidadFilas.add(textoCantidadFilas);
+        panelCantidadFilas.add(campoCantidadFilas);
+        panelCantidadFilas.add(botonAceptar);
 
         botonLimpiar = new Boton(letraBoton);
         botonLimpiar.setText("Limpiar");
@@ -395,7 +533,7 @@ public class Ventana extends JFrame
         
         panelDatos.add(textoRegresion);
         panelDatos.add(textoSimpsons);
-        panelDatos.add(panelTamanoTabla);
+        panelDatos.add(panelCantidadFilas);
         panelDatos.add(scrollXY);
         panelDatos.add(botonLimpiar);
         panelDatos.add(panelIntroducirDatos);

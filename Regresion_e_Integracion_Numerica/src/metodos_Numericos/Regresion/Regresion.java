@@ -20,9 +20,9 @@ public abstract class Regresion
         return r;
     }
 
-    public abstract void calcularSr();
+    abstract void calcularSr();
 
-    public abstract String getModelo();
+    abstract String getModelo();
 
     public double getR() {
 		return r;
